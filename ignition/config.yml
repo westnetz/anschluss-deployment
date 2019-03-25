@@ -1,0 +1,88 @@
+systemd:
+  units:
+    - name: docker-compose.service
+      contents: |
+        [Unit]
+        Description=Install Docker Compose
+        After=docker.service network-online.target
+        Requires=docker.service network-online.target
+        ConditionPathExists=!/opt/bin/docker-compose
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/bin/mkdir -p /opt/bin
+        ExecStart=/usr/bin/curl -fSsL https://github.com/docker/compose/releases/download/1.23.0/docker-compose-Linux-x86_64 -o /opt/bin/docker-compose
+        ExecStart=/usr/bin/chmod +x /opt/bin/docker-compose
+    - name: traefik-network.service
+      contents: |
+        [Unit]
+        Description=Traefik Network
+        After=docker.service network-online.target
+        Requires=docker.service network-online.target
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=-/bin/docker network create traefik
+    - name: deployment-key.service
+      contents: |
+        [Unit]
+        Description=Add deployment key to GPG keyring
+        After=network-online.target
+        Requires=network-online.target
+        ConditionPathExists=/root/deployment-key.pgp
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        StandardInput=file:/root/deployment-key.pgp
+        ExecStart=/usr/bin/gpg --import
+        ExecStartPost=/usr/bin/rm /root/deployment-key.pgp
+    - name: anschluss-deployment-fetch.service
+      contents: |
+        [Unit]
+        Description=Clone anschluss-deployment repository
+        After=network-online.target
+        After=deployment-key.service
+        Requires=network-online.target
+        Requires=deployment-key.service
+        ConditionPathExists=!/srv/anschluss-deployment
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStartPre=/usr/bin/mkdir -p /srv
+        ExecStart=/bin/git clone https://github.com/westnetz/anschluss-deployment.git /srv/anschluss-deployment
+        ExecStart=/srv/anschluss-deployment/git-crypt/install.sh
+        ExecStart=/usr/bin/bash -c 'cd /srv/anschluss-deployment && /opt/bin/git-crypt unlock'
+    - name: anschluss.service
+      contents: |
+        [Unit]
+        Description=Anschluss Service
+        After=docker-compose.service
+        After=anschluss-deployment-fetch.service
+        After=traefik-network.service
+        Requires=docker-compose.service
+        Requires=anschluss-deployment-fetch.service
+        Requires=traefik-network.service
+
+        [Service]
+        WorkingDirectory=/srv/anschluss-deployment
+        ExecStart=/srv/anschluss-deployment/up.sh
+        ExecStop=/opt/bin/docker-compose down
+
+        [Install]
+        WantedBy=multi-user.target
+      enabled: yes
+storage:
+  directories:
+    - filesystem: root
+      path: /root
+      mode: 0755
+  files:
+    - filesystem: root
+      path: /root/deployment-key.pgp
+      mode: 0600
+      contents:
+        local: deployment-key.pgp
