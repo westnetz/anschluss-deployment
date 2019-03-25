@@ -21,7 +21,7 @@ services:
     networks:
       - traefik
   anschluss:
-    image: quay.io/westnetz/anschluss:edge@sha256:6f4b8c78e42f9fcc6678e43add71496474bcfdde7c8133ae698122f707af8ad3
+    image: quay.io/westnetz/anschluss:integration
     labels:
       - "traefik.enable=true"
       - "traefik.frontend.rule=Host:${HOSTNAME}"
