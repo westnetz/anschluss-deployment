@@ -75,6 +75,19 @@ systemd:
         [Install]
         WantedBy=multi-user.target
       enabled: yes
+    - name: anschluss-update.service
+      contents: |
+        [Unit]
+        Description=Update Anschluss Deployment
+
+        [Service]
+        WorkingDirectory=/srv/anschluss-deployment
+        Type=oneshot
+        ExecStart=/bin/git reset --hard HEAD
+        ExecStart=/bin/git clean -df
+        ExecStart=/opt/bin/git-crypt lock
+        ExecStart=/bin/git pull
+        ExecStart=/opt/bin/git-crypt unlock
 storage:
   directories:
     - filesystem: root
