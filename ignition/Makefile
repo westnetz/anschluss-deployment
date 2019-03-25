@@ -7,6 +7,10 @@ help:
 CT ?= docker-compose run --rm ct
 .PHONY: config
 config: ## Transpiles Cloud Linux YML to Ignition JSON
+	@if grep -q GITCRYPT deployment-key.pgp; then \
+		echo "Run git-crypt unlock first" >&2; \
+		exit 1; \
+	fi
 	$(CT) \
 		-files-dir /host \
 		-pretty \
