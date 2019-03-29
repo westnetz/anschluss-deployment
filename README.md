@@ -1,4 +1,4 @@
-# anschluss-deployement
+# anschluss-deployment
 
 This repository contains the glue to setup [anschluss](https://github.com/westnetz/anschluss) on
 [CoreOS](https://coreos.com/) using [Ignition](https://coreos.com/ignition/docs/latest/).
