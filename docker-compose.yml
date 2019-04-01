@@ -4,7 +4,6 @@ services:
   traefik:
     image: traefik:v2.0-alpine@sha256:5c5c3a43591259af3ea64b51145db21f62614478d58ae1802d69fd5968b6f9af
     read_only: yes
-    command: --api --docker --docker.exposedbydefault=false
     ports:
       - 80:80
       - 443:443
@@ -24,8 +23,7 @@ services:
     image: quay.io/westnetz/anschluss:integration
     labels:
       - "traefik.enable=true"
-      - "traefik.frontend.rule=Host:${HOSTNAME}"
-      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.anschluss.rule=Host(`${HOSTNAME}`)"
     networks:
       - traefik
     environment:

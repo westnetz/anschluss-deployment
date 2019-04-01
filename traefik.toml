@@ -16,3 +16,13 @@ onHostRule = true
 onDemand = false
 acmeLogging = true
 [acme.tlsChallenge]
+
+[providers.docker]
+exposedByDefault = false
+network = "traefik"
+
+[global]
+sendAnonymousUsage = false
+
+[api]
+dashboard = true
