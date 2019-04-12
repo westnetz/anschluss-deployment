@@ -21,7 +21,7 @@ services:
     networks:
       - traefik
   anschluss:
-    image: quay.io/westnetz/anschluss:integration
+    image: quay.io/westnetz/anschluss:edge
     labels:
       - "traefik.enable=true"
       - "traefik.frontend.rule=Host:${HOSTNAME}"
