@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   traefik:
-    image: traefik:1.7-alpine@sha256:0531581bde9da0670fc2c7a4e419e1cc38abff74e7ba06410bf2b1b55c70ef15
+    image: traefik:1.7-alpine@sha256:7fa25a5a54a44ddab4d6b5e40bf03175ae617b460c0ee4a744b859edfdf12c9a
     read_only: yes
     command: --api --docker --docker.exposedbydefault=false
     ports:
